@@ -3,7 +3,7 @@ export type Language = 'nl' | 'en'
 const copy = {
   nl: {
     kicker: 'Audio, opnieuw van jou',
-    headline: 'Haal de ruis uit je metadata.',
+    headline: 'Pas de verborgen tags aan in je mp3/wav.',
     intro: 'Bekijk elke verborgen tag. Kies wat van jou is. Download schone audio zonder opnieuw te coderen.',
     dropTitle: 'Sleep je audio hierheen',
     dropSubtitle: 'of klik om MP3- en WAV-bestanden te kiezen',
@@ -81,7 +81,7 @@ const copy = {
   },
   en: {
     kicker: 'Audio, yours again',
-    headline: 'Clear the noise from your metadata.',
+    headline: 'Edit the hidden tags in your mp3/wav.',
     intro: 'Inspect every hidden tag. Keep what is yours. Download clean audio without re-encoding.',
     dropTitle: 'Drop your audio here',
     dropSubtitle: 'or click to choose MP3 and WAV files',
