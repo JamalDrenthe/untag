@@ -2,7 +2,7 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Pages-Edge_Functions-F38020?logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Pages-untag.jamaldrenthe.com-F38020?logo=cloudflare&logoColor=white)](https://untag.jamaldrenthe.com)
 [![Web Workers](https://img.shields.io/badge/Web_Workers-Zero_Copy_ArrayBuffer-FF6F00)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
 [![Vitest](https://img.shields.io/badge/Tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 
@@ -135,3 +135,4 @@ Looking for a **Senior/Staff Engineer** or **technical partner** who can build e
 
 - **GitHub**: [@JamalDrenthe](https://github.com/JamalDrenthe)
 - **Email**: [info@jamaldrenthe.com](mailto:info@jamaldrenthe.com)
+- **Live Application**: [untag.jamaldrenthe.com](https://untag.jamaldrenthe.com)
