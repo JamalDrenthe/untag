@@ -6,17 +6,13 @@
 [![Web Workers](https://img.shields.io/badge/Web_Workers-Zero_Copy_ArrayBuffer-FF6F00)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)
 [![Vitest](https://img.shields.io/badge/Tested_with-Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 
-> **Executive Summary (EN):** **untag** is a zero-re-encoding binary audio metadata inspector and tag rebuilder for **MP3** and **WAV** masters. Written from scratch in pure TypeScript without external FFmpeg or native binary dependencies, it parses and strips `ID3v2.2/2.3/2.4`, `ID3v1`, `APEv2`, `Lyrics3`, and `RIFF/WAV` chunks (`LIST-INFO`, `id3 `, `bext`, `iXML`, plus unknown proprietary chunks and AI-generation markers like Suno UUIDs), then reconstructs clean `ID3v2.4` and `RIFF LIST-INFO` headers while leaving the underlying audio bitstream **100% bit-identical**.
->
-> **Executive Summary (NL):** **untag** is een lossless binaire audio-metadata inspecteur en cleaner voor **MP3**- en **WAV**-bestanden. Zonder de audiostroom opnieuw te encoderen (0% kwaliteitsverlies) ontleedt en verwijdert de engine alle bestaande metadata-containers, verborgen chunks en AI-generatie-watermerken (zoals Suno-fingerprints), en schrijft een schone, gestandaardiseerde tag-structuur weg — zowel **client-side via Web Workers** als **edge-side via Cloudflare Pages Functions**.
+**untag** (`untag.jamaldrenthe.com`) is a lossless binary audio metadata inspector and tag rebuilder for **MP3** and **WAV** masters. Written in pure TypeScript without external FFmpeg or native binary dependencies, it parses and strips `ID3v2.2/2.3/2.4`, `ID3v1`, `APEv2`, `Lyrics3`, and `RIFF/WAV` chunks (`LIST-INFO`, `id3 `, `bext`, `iXML`, plus unknown proprietary chunks and AI-generation markers such as Suno UUIDs), then reconstructs clean `ID3v2.4` and `RIFF LIST-INFO` headers while leaving the underlying audio bitstream **100% bit-identical**.
 
 ---
 
-## Why This Project Stands Out Technically (For Technical Recruiters & CTOs)
+## Technical Architecture & Design
 
-Most audio web tools rely on server-side FFmpeg wrappers or heavy WebAssembly blobs that decode and re-encode audio streams. **untag** is a showcase of **low-level binary protocol engineering in TypeScript**:
-
-1. **Custom Zero-Dependency Binary Parser & Serializer (`src/lib/untag/index.ts` — 750+ LOC)**:
+1. **Zero-Dependency Binary Parser & Serializer (`src/lib/untag/index.ts` — 750+ LOC)**:
    - **MP3 Container Surgery**: Parses synchsafe integers, extended headers, unsynchronisation flags, UTF-8 / UTF-16LE / UTF-16BE / Windows-1252 text encodings, attached cover art (`APIC`/`PIC`), `ID3v1` trailers, `APEv2` footers, and `Lyrics3` blocks. Isolates the exact byte range of the MPEG audio frames (evaluating Xing/Info/VBRI VBR headers for accurate bitrate and duration calculation) and prepends a freshly serialized `ID3v2.4` header.
    - **RIFF/WAV Chunk Surgery**: Walks the 32-bit little-endian RIFF chunk tree (`fmt `, `data`, `LIST`, `id3 `, `bext`, `iXML`), strips non-audio metadata and proprietary broadcast/AI chunks while preserving word-aligned (`2-byte` padded) PCM/IEEE-float `fmt ` and `data` chunks, and writes clean `LIST-INFO` + embedded `ID3v2.4` chunks.
 2. **AI Provenance & Suno Fingerprint Detection**:
@@ -127,12 +123,10 @@ VITE_FIREBASE_APP_ID=...
 
 ---
 
-## About the Author & Collaboration
+## Author & Contact
 
-Engineered by **Jamal Drenthe** — Full-Stack Software Engineer, Binary/Audio Systems Architect & Founder of **Quantum Initium**.
+Designed and engineered by **Jamal Drenthe** ([Quantum Initium](https://quantuminitium.com)).
 
-Looking for a **Senior/Staff Engineer** or **technical partner** who can build everything from low-level binary parsers and edge workers to polished, multi-language SaaS products?
-
+- **Website**: [untag.jamaldrenthe.com](https://untag.jamaldrenthe.com)
 - **GitHub**: [@JamalDrenthe](https://github.com/JamalDrenthe)
 - **Email**: [info@jamaldrenthe.com](mailto:info@jamaldrenthe.com)
-- **Live Application**: [untag.jamaldrenthe.com](https://untag.jamaldrenthe.com)
