@@ -54,6 +54,39 @@ function extractAnalysisSegment(audioBuffer: AudioBuffer): { channelData: Float3
   return { channelData: mono, sampleRate }
 }
 
+async function decodeAudioDataSafe(ctx: AudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume()
+    } catch {
+      // ignore resume rejection
+    }
+  }
+  return new Promise<AudioBuffer>((resolve, reject) => {
+    try {
+      let resolved = false
+      const onDone = (buf: AudioBuffer) => {
+        if (!resolved) {
+          resolved = true
+          resolve(buf)
+        }
+      }
+      const onErr = (err: unknown) => {
+        if (!resolved) {
+          resolved = true
+          reject(err instanceof Error ? err : new Error(String(err || 'Failed to decode audio data')))
+        }
+      }
+      const res = ctx.decodeAudioData(buffer, onDone, onErr)
+      if (res && typeof (res as Promise<AudioBuffer>).then === 'function') {
+        res.then(onDone, onErr)
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
 /**
  * Decodes audio in browser and analyzes BPM, Musical Key & Camelot notation using Essentia.js WASM.
  */
@@ -62,13 +95,19 @@ export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis
   const ctx = getAudioContext()
 
   // decodeAudioData detaches the buffer in some browser implementations, so slice it
-  const audioBuffer = await ctx.decodeAudioData(arrayBuffer.slice(0))
+  const audioBuffer = await decodeAudioDataSafe(ctx, arrayBuffer.slice(0))
   const { channelData, sampleRate } = extractAnalysisSegment(audioBuffer)
 
   return new Promise<AudioAnalysis>((resolve, reject) => {
     const worker = new Worker(new URL('./analyzer.worker.ts', import.meta.url), { type: 'module' })
 
+    const timeout = setTimeout(() => {
+      worker.terminate()
+      reject(new Error('Audio analysis timed out'))
+    }, 30000)
+
     worker.onmessage = (event: MessageEvent<AnalyzeWorkerResponse>) => {
+      clearTimeout(timeout)
       worker.terminate()
       if (event.data.success) {
         resolve(event.data.analysis)
@@ -78,9 +117,11 @@ export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis
     }
 
     worker.onerror = (err) => {
+      clearTimeout(timeout)
       worker.terminate()
       reject(new Error(err.message || 'Analysis worker failed'))
     }
+
 
     const payload: AnalyzeWorkerRequest = {
       channelData,

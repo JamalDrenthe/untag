@@ -1,3 +1,8 @@
+// Ensure Emscripten correctly detects Web Worker environment in ES Module workers
+if (typeof self !== 'undefined' && typeof (self as any).importScripts === 'undefined') {
+  ;(self as any).importScripts = () => {}
+}
+
 // @ts-expect-error essentia wasm bundle
 import { EssentiaWASM } from 'essentia.js/dist/essentia-wasm.es.js'
 // @ts-expect-error essentia core bundle
@@ -8,6 +13,7 @@ import {
   formatDisplayKey,
   type AudioAnalysis,
 } from './analyzer.types'
+
 
 let essentiaInstance: any = null
 

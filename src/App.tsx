@@ -62,8 +62,10 @@ interface AudioEntry {
   cleaning: boolean
   analyzing?: boolean
   analysis?: AudioAnalysis
+  analysisError?: string
   error?: string
 }
+
 
 
 function readStoredProfile(): Profile {
@@ -224,7 +226,7 @@ function App() {
 
   const runAnalysis = useCallback(async (entry: AudioEntry, autoApply = false) => {
     if (entry.analyzing) return
-    setEntry(entry.id, { analyzing: true })
+    setEntry(entry.id, { analyzing: true, analysisError: undefined })
     try {
       const analysis = await analyzeAudio(entry.file)
       setEntries((current) => current.map((item) => {
@@ -242,16 +244,19 @@ function App() {
           ...item,
           analyzing: false,
           analysis,
+          analysisError: undefined,
           tags: nextTags,
         }
       }))
       setToast(language === 'nl' ? `Essentia: ${analysis.bpm} BPM • ${analysis.displayKey}` : `Essentia: ${analysis.bpm} BPM • ${analysis.displayKey}`)
       window.setTimeout(() => setToast(''), 3000)
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'Analysis failed'
       console.warn('Essentia analysis error:', err)
-      setEntry(entry.id, { analyzing: false })
+      setEntry(entry.id, { analyzing: false, analysisError: message })
     }
   }, [language, setEntry])
+
 
   const applyAnalysis = useCallback((entry: AudioEntry) => {
     if (!entry.analysis || !entry.tags) return
@@ -568,6 +573,15 @@ function App() {
 
                 {entry.local && <div className="local-note"><Zap size={13} />{t('local')}</div>}
                 {entry.error && <div className="error-note">{entry.error}</div>}
+                {entry.analysisError && (
+                  <div className="error-note" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <span>{language === 'nl' ? `Analyse mislukt: ${entry.analysisError}` : `Analysis failed: ${entry.analysisError}`}</span>
+                    <button className="text-button" style={{ height: '24px', padding: '0 6px' }} onClick={() => void runAnalysis(entry, false)}>
+                      {language === 'nl' ? 'Opnieuw' : 'Retry'}
+                    </button>
+                  </div>
+                )}
+
 
                 {entry.inspection && (
                   <>
