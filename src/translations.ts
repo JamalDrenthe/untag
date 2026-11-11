@@ -78,6 +78,10 @@ const copy = {
     maxFiles: 'Kies een MP3- of WAV-bestand.',
     items: 'items',
     saved: 'Profiel opgeslagen',
+    analyze: 'BPM & Key analyseren',
+    analyzing: 'Analyseren met Essentia...',
+    applyAnalysis: 'Overnemen in tags',
+    analysisDone: 'Audio geanalyseerd',
   },
   en: {
     kicker: 'Audio, yours again',
@@ -156,6 +160,10 @@ const copy = {
     maxFiles: 'Choose an MP3 or WAV file.',
     items: 'items',
     saved: 'Profile saved',
+    analyze: 'Analyze BPM & Key',
+    analyzing: 'Analyzing with Essentia...',
+    applyAnalysis: 'Apply to tags',
+    analysisDone: 'Audio analyzed',
   },
 } as const
 

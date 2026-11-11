@@ -23,6 +23,11 @@
 4. **Multi-File Batch Processing & Instant ZIP Mastering**:
    - Drag-and-drop batch queue with per-track metadata overrides, reusable studio preset profiles (persisted locally and synced via **Firebase Auth + Cloud Firestore**), cover-art embedding, and one-click batch ZIP archiving powered by `fflate`.
    - Full **5-language internationalization (EN, NL, DE, FR, ES)** in `src/translations.ts`.
+5. **Client-Side Audio Signal Analysis (Essentia.js WebAssembly)**:
+   - Dedicated `analyzer.worker.ts` powered by **MTG Essentia.js (WASM)**.
+   - Automatically detects tempo (**BPM** via `RhythmExtractor2013`), harmonic pitch (**Musical Key** via `KeyExtractor` with EDMA profile), and full **Camelot Wheel** notation (e.g. `8A` / `Am`, `11B` / `A`).
+   - Runs 100% locally in the browser with transferable memory — zero server overhead, zero privacy risk.
+
 
 ---
 
@@ -80,11 +85,13 @@ flowchart LR
 | Layer | Technology |
 | :--- | :--- |
 | **Core Binary Engine** | Pure TypeScript (`DataView`, `Uint8Array`, `TextDecoder`, `TextEncoder`) — zero audio libraries |
+| **Audio Analysis (WASM)** | Essentia.js WebAssembly (`RhythmExtractor2013`, `KeyExtractor` EDMA, Camelot Wheel mapping) |
 | **Frontend UI** | React 18.3, Vite 6, Tailwind CSS 3.4, Lucide Icons, `fflate` (fast ZIP compression), PWA Web Manifest |
 | **Concurrency** | Native ES Module Web Workers with transferable `ArrayBuffer`s |
 | **Edge Runtime** | Cloudflare Pages Functions (`functions/api/inspect.ts`, `functions/api/clean.ts`), Wrangler |
 | **Cloud & Auth** | Firebase Authentication (Google OAuth + Email/Password) & Cloud Firestore (Studio Profiles & Tag History) |
-| **Testing** | Vitest (`tests/untag.test.ts` — binary round-trip verification for MP3 & WAV) |
+| **Testing** | Vitest (`tests/untag.test.ts`, `tests/analyzer.test.ts`, `tests/essentia-wasm.test.ts`) |
+
 
 ---
 

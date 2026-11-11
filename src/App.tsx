@@ -22,8 +22,10 @@ import {
   DEFAULT_PROFILE,
   PROFILE_FIELDS,
   TAG_FIELDS,
+  analyzeAudio,
   formatDuration,
   suggest,
+  type AudioAnalysis,
   type AudioFormat,
   type Inspection,
   type Profile,
@@ -58,8 +60,11 @@ interface AudioEntry {
   local: boolean
   working: boolean
   cleaning: boolean
+  analyzing?: boolean
+  analysis?: AudioAnalysis
   error?: string
 }
+
 
 function readStoredProfile(): Profile {
   try {
@@ -217,6 +222,54 @@ function App() {
     setEntries((current) => current.map((entry) => entry.id === id ? { ...entry, ...update } : entry))
   }, [])
 
+  const runAnalysis = useCallback(async (entry: AudioEntry, autoApply = false) => {
+    if (entry.analyzing) return
+    setEntry(entry.id, { analyzing: true })
+    try {
+      const analysis = await analyzeAudio(entry.file)
+      setEntries((current) => current.map((item) => {
+        if (item.id !== entry.id) return item
+        const shouldFillBpm = autoApply && item.tags && !item.tags.bpm
+        const shouldFillKey = autoApply && item.tags && !item.tags.initialkey
+        const nextTags = item.tags && (shouldFillBpm || shouldFillKey)
+          ? {
+              ...item.tags,
+              bpm: shouldFillBpm ? String(analysis.bpm) : item.tags.bpm,
+              initialkey: shouldFillKey ? analysis.standardKey : item.tags.initialkey,
+            }
+          : item.tags
+        return {
+          ...item,
+          analyzing: false,
+          analysis,
+          tags: nextTags,
+        }
+      }))
+      setToast(language === 'nl' ? `Essentia: ${analysis.bpm} BPM • ${analysis.displayKey}` : `Essentia: ${analysis.bpm} BPM • ${analysis.displayKey}`)
+      window.setTimeout(() => setToast(''), 3000)
+    } catch (err) {
+      console.warn('Essentia analysis error:', err)
+      setEntry(entry.id, { analyzing: false })
+    }
+  }, [language, setEntry])
+
+  const applyAnalysis = useCallback((entry: AudioEntry) => {
+    if (!entry.analysis || !entry.tags) return
+    setEntries((current) => current.map((item) => {
+      if (item.id !== entry.id || !item.tags || !item.analysis) return item
+      return {
+        ...item,
+        tags: {
+          ...item.tags,
+          bpm: String(item.analysis.bpm),
+          initialkey: item.analysis.standardKey,
+        },
+      }
+    }))
+    setToast(language === 'nl' ? 'BPM & Key overgenomen in metadata' : 'BPM & Key applied to metadata')
+    window.setTimeout(() => setToast(''), 2400)
+  }, [language])
+
   const processFile = useCallback(async (entry: AudioEntry) => {
     try {
       let inspection: Inspection
@@ -228,10 +281,19 @@ function App() {
         local = true
       }
       setEntry(entry.id, { inspection, tags: suggest(inspection, entry.file.name, profile), local, working: false })
+      void runAnalysis(entry, true)
     } catch (error) {
       setEntry(entry.id, { working: false, error: userFacingError(error, language) })
     }
-  }, [profile, setEntry, language])
+  }, [profile, setEntry, language, runAnalysis])
+
+  const analyzeAll = useCallback(async () => {
+    const unanalyzed = entries.filter((item) => !item.analysis && !item.analyzing)
+    for (const item of unanalyzed) {
+      await runAnalysis(item, true)
+    }
+  }, [entries, runAnalysis])
+
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const supported = Array.from(files).filter((file) => /\.(mp3|wav)$/i.test(file.name))
@@ -445,6 +507,7 @@ function App() {
             <div className="list-heading">
               <div><div className="section-eyebrow">{language === 'nl' ? 'WERKRUIMTE' : 'WORKSPACE'}</div><h2>{language === 'nl' ? 'Jouw bestanden' : 'Your files'} <span className="count-pill">{entries.length}</span></h2></div>
               <div className="batch-actions">
+                <button className="soft-button" onClick={() => void analyzeAll()} title={t('analyze')}><Sparkles size={15} />{t('analyze')}</button>
                 {entries.length > 1 && <button className="soft-button" onClick={() => void cleanAll()}><Zap size={15} />{t('clean')}</button>}
                 {entries.length > 1 && <button className="primary-button zip-button" onClick={() => void downloadZip()} disabled={zipBusy}>{zipBusy ? <span className="spinner" /> : <ArrowDownToLine size={16} />}{t('downloadZip')}</button>}
               </div>
@@ -470,6 +533,38 @@ function App() {
                     <button className="remove-file" onClick={() => setEntries((current) => current.filter(({ id }) => id !== entry.id))} aria-label={t('remove')} title={t('remove')}><X size={16} /></button>
                   </div>
                 </div>
+
+                {entry.analyzing ? (
+                  <div className="analysis-strip">
+                    <div className="analysis-left">
+                      <span className="analysis-brand"><Sparkles size={13} className="spinner" /> Essentia.js</span>
+                      <span className="analysis-confidence">{t('analyzing')}</span>
+                    </div>
+                  </div>
+                ) : entry.analysis ? (
+                  <div className="analysis-strip">
+                    <div className="analysis-left">
+                      <span className="analysis-brand"><Sparkles size={13} /> Essentia.js</span>
+                      <span className="analysis-pill"><b>{entry.analysis.bpm}</b> BPM</span>
+                      <span className="analysis-pill">{entry.analysis.displayKey}</span>
+                      {entry.analysis.danceability !== undefined && (
+                        <span className="analysis-pill">Dance: {Math.round(entry.analysis.danceability * 100)}%</span>
+                      )}
+                      <span className="analysis-confidence">
+                        Key: {Math.round(entry.analysis.confidenceKey * 100)}% · BPM: {Math.round(entry.analysis.confidenceBpm * 100)}%
+                      </span>
+                    </div>
+                    <div>
+                      {entry.tags && (entry.tags.bpm !== String(entry.analysis.bpm) || entry.tags.initialkey !== entry.analysis.standardKey) ? (
+                        <button className="text-button analysis-btn" onClick={() => applyAnalysis(entry)}>
+                          <Check size={12} />{t('applyAnalysis')}
+                        </button>
+                      ) : (
+                        <span className="success-label"><Check size={12} />{t('analysisDone')}</span>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
 
                 {entry.local && <div className="local-note"><Zap size={13} />{t('local')}</div>}
                 {entry.error && <div className="error-note">{entry.error}</div>}
@@ -503,8 +598,14 @@ function App() {
                     <section className="metadata-section edit-section">
                       <div className="section-title-line edit-heading">
                         <h4><span className="section-icon"><Settings2 size={15} /></span>{t('newTags')}</h4>
-                        {entries.length > 1 && <button className="text-button" onClick={() => applyShared(entry)}><Zap size={14} />{t('applyAll')}</button>}
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button className="text-button" onClick={() => void runAnalysis(entry, false)} disabled={entry.analyzing}>
+                            <Sparkles size={14} />{t('analyze')}
+                          </button>
+                          {entries.length > 1 && <button className="text-button" onClick={() => applyShared(entry)}><Zap size={14} />{t('applyAll')}</button>}
+                        </div>
                       </div>
+
                       <div className="tag-groups">
                         {groups.map((group) => (
                           <fieldset className="tag-group" key={group}>

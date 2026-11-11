@@ -749,3 +749,6 @@ export function formatDuration(seconds?: number): string {
 export function containerFor(format: AudioFormat): MetadataContainer {
   return format === 'mp3' ? 'ID3v2.x' : 'RIFF id3 chunk'
 }
+
+export * from './analyzer'
+
