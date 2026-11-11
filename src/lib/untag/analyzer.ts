@@ -1,17 +1,22 @@
 import type { AudioAnalysis } from './analyzer.types'
 import type { AnalyzeWorkerRequest, AnalyzeWorkerResponse } from './analyzer.worker'
 
-let sharedAudioContext: AudioContext | null = null
+function getDecodingContext(): BaseAudioContext {
+  const OfflineContextClass =
+    window.OfflineAudioContext ||
+    (window as unknown as { webkitOfflineAudioContext: typeof OfflineAudioContext }).webkitOfflineAudioContext
+  if (OfflineContextClass) {
+    try {
+      return new OfflineContextClass(1, 44100, 44100)
+    } catch {
+      // Fall through to live AudioContext if OfflineAudioContext fails
+    }
+  }
 
-function getAudioContext(): AudioContext {
-  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    sharedAudioContext = new AudioContextClass()
-  }
-  if (sharedAudioContext.state === 'suspended') {
-    void sharedAudioContext.resume()
-  }
-  return sharedAudioContext
+  const AudioContextClass =
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+  return new AudioContextClass()
 }
 
 /**
@@ -54,45 +59,47 @@ function extractAnalysisSegment(audioBuffer: AudioBuffer): { channelData: Float3
   return { channelData: mono, sampleRate }
 }
 
-async function decodeAudioDataSafe(ctx: AudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
-  if (ctx.state === 'suspended') {
-    try {
-      await ctx.resume()
-    } catch {
-      // ignore resume rejection
-    }
-  }
+async function decodeAudioDataSafe(ctx: BaseAudioContext, buffer: ArrayBuffer): Promise<AudioBuffer> {
   return new Promise<AudioBuffer>((resolve, reject) => {
+    let resolved = false
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true
+        reject(new Error('Audio decoding timed out'))
+      }
+    }, 15000)
+
+    const onDone = (buf: AudioBuffer) => {
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        resolve(buf)
+      }
+    }
+
+    const onErr = (err: unknown) => {
+      if (!resolved) {
+        resolved = true
+        clearTimeout(timeout)
+        reject(err instanceof Error ? err : new Error(String(err || 'Failed to decode audio data')))
+      }
+    }
+
     try {
-      let resolved = false
-      const onDone = (buf: AudioBuffer) => {
-        if (!resolved) {
-          resolved = true
-          resolve(buf)
-        }
-      }
-      const onErr = (err: unknown) => {
-        if (!resolved) {
-          resolved = true
-          reject(err instanceof Error ? err : new Error(String(err || 'Failed to decode audio data')))
-        }
-      }
       const res = ctx.decodeAudioData(buffer, onDone, onErr)
       if (res && typeof (res as Promise<AudioBuffer>).then === 'function') {
         res.then(onDone, onErr)
       }
     } catch (err) {
+      clearTimeout(timeout)
       reject(err)
     }
   })
 }
 
-/**
- * Decodes audio in browser and analyzes BPM, Musical Key & Camelot notation using Essentia.js WASM.
- */
-export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis> {
+async function analyzeAudioInternal(audioFileOrBlob: Blob): Promise<AudioAnalysis> {
   const arrayBuffer = await audioFileOrBlob.arrayBuffer()
-  const ctx = getAudioContext()
+  const ctx = getDecodingContext()
 
   // decodeAudioData detaches the buffer in some browser implementations, so slice it
   const audioBuffer = await decodeAudioDataSafe(ctx, arrayBuffer.slice(0))
@@ -103,8 +110,8 @@ export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis
 
     const timeout = setTimeout(() => {
       worker.terminate()
-      reject(new Error('Audio analysis timed out'))
-    }, 30000)
+      reject(new Error('Audio analysis worker timed out'))
+    }, 25000)
 
     worker.onmessage = (event: MessageEvent<AnalyzeWorkerResponse>) => {
       clearTimeout(timeout)
@@ -122,7 +129,6 @@ export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis
       reject(new Error(err.message || 'Analysis worker failed'))
     }
 
-
     const payload: AnalyzeWorkerRequest = {
       channelData,
       sampleRate,
@@ -131,6 +137,19 @@ export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis
     // Transfer the channelData buffer for zero-copy performance
     worker.postMessage(payload, [channelData.buffer])
   })
+}
+
+/**
+ * Decodes audio in browser and analyzes BPM, Musical Key & Camelot notation using Essentia.js WASM.
+ * Protected by an overarching 30s timeout guard to prevent any infinite loading state.
+ */
+export async function analyzeAudio(audioFileOrBlob: Blob): Promise<AudioAnalysis> {
+  return Promise.race([
+    analyzeAudioInternal(audioFileOrBlob),
+    new Promise<AudioAnalysis>((_, reject) => {
+      setTimeout(() => reject(new Error('Audio analysis timed out')), 30000)
+    }),
+  ])
 }
 
 export * from './analyzer.types'
