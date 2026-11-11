@@ -80,6 +80,7 @@ export interface TagSet {
   comment: string
   lyrics: string
   website: string
+  audio_source_url: string
   cover?: CoverTag | null
 }
 
@@ -120,7 +121,8 @@ export const TAG_FIELDS: Array<{ key: keyof TagSet; group: string; label: string
   { key: 'encoded_by', group: 'rights', label: 'Encoded by' },
   { key: 'comment', group: 'text', label: 'Comment' },
   { key: 'lyrics', group: 'text', label: 'Lyrics' },
-  { key: 'website', group: 'text', label: 'Website' },
+  { key: 'website', group: 'text', label: 'Website (WOAR)' },
+  { key: 'audio_source_url', group: 'text', label: 'Audio source URL (WOAS)' },
 ]
 
 export const PROFILE_FIELDS = TAG_FIELDS.filter(({ key }) =>
@@ -156,4 +158,5 @@ export const DEFAULT_PROFILE: Profile = {
   encoded_by: 'Jamal Drenthe Clean',
   comment: 'Produced by Jamal Drenthe',
   website: 'https://www.jamaldrenthe.com',
+  audio_source_url: 'https://www.jamaldrenthe.com',
 }

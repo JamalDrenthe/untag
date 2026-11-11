@@ -72,6 +72,8 @@ const FRAME_LABELS: Record<string, string> = {
   USLT: 'Lyrics',
   ULT: 'Lyrics',
   WOAR: 'Official artist website',
+  WOAS: 'Official audio source webpage',
+  WAS: 'Official audio source webpage',
   APIC: 'Attached picture',
   PRIV: 'Private data',
   GEOB: 'General encapsulated object',
@@ -606,7 +608,8 @@ export function writeId3v24(tags: TagSet): Uint8Array {
     const mime = tags.cover.mime || 'image/jpeg'
     frames.push(id3Frame('APIC', joinBytes([new Uint8Array([3]), encoder.encode(mime), new Uint8Array([0, 3, 0]), toBase64Bytes(tags.cover.data)])))
   }
-  if (tags.website?.trim()) frames.push(id3Frame('WOAR', encoder.encode(tags.website)))
+  if (tags.website?.trim()) frames.push(id3Frame('WOAR', encoder.encode(tags.website.trim())))
+  if (tags.audio_source_url?.trim()) frames.push(id3Frame('WOAS', encoder.encode(tags.audio_source_url.trim())))
   const body = joinBytes(frames)
   return joinBytes([encoder.encode('ID3'), new Uint8Array([4, 0, 0]), syncSafeBytes(body.length), body])
 }
@@ -736,6 +739,8 @@ export function suggest(inspection: Inspection, filename: string, profile: Profi
     originaldate: sunoDate,
     releasedate: '',
     lyrics,
+    website: profile.website ?? 'https://www.jamaldrenthe.com',
+    audio_source_url: profile.audio_source_url ?? 'https://www.jamaldrenthe.com',
     cover: null,
   }
 }

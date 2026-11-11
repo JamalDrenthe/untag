@@ -82,6 +82,8 @@ const copy = {
     analyzing: 'Analyseren met Essentia...',
     applyAnalysis: 'Overnemen in tags',
     analysisDone: 'Audio geanalyseerd',
+    willBeCleaned: 'Vervangen in bounce',
+    willBeStripped: 'Gestript in bounce',
   },
   en: {
     kicker: 'Audio, yours again',
@@ -164,6 +166,8 @@ const copy = {
     analyzing: 'Analyzing with Essentia...',
     applyAnalysis: 'Apply to tags',
     analysisDone: 'Audio analyzed',
+    willBeCleaned: 'Replaced in bounce',
+    willBeStripped: 'Stripped in bounce',
   },
 } as const
 
@@ -202,7 +206,8 @@ const fields: Record<string, { nl: string; en: string }> = {
   encoded_by: { nl: 'Gecodeerd door', en: 'Encoded by' },
   comment: { nl: 'Opmerking', en: 'Comment' },
   lyrics: { nl: 'Songtekst', en: 'Lyrics' },
-  website: { nl: 'Website', en: 'Website' },
+  website: { nl: 'Artiestenwebsite (WOAR)', en: 'Artist website (WOAR)' },
+  audio_source_url: { nl: 'Audiobron URL (WOAS)', en: 'Audio source URL (WOAS)' },
 }
 
 const groups: Record<string, { nl: string; en: string }> = {
@@ -254,7 +259,8 @@ const metadataLabels: Record<string, { nl: string; en: string }> = {
   'Encoded by': { nl: 'Gecodeerd door', en: 'Encoded by' },
   Comment: { nl: 'Opmerking', en: 'Comment' },
   Lyrics: { nl: 'Songtekst', en: 'Lyrics' },
-  'Official artist website': { nl: 'Officiële artiestenwebsite', en: 'Official artist website' },
+  'Official artist website': { nl: 'Officiële artiestenwebsite (WOAR)', en: 'Official artist website (WOAR)' },
+  'Official audio source webpage': { nl: 'Officiële audiobron (WOAS)', en: 'Official audio source webpage (WOAS)' },
   'Attached picture': { nl: 'Ingesloten afbeelding', en: 'Attached picture' },
   'Private data': { nl: 'Privégegevens', en: 'Private data' },
   'General encapsulated object': { nl: 'Algemeen ingesloten object', en: 'General encapsulated object' },

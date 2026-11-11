@@ -596,12 +596,21 @@ function App() {
                             <thead><tr><th>{t('container')}</th><th>{t('id')}</th><th>{t('field')}</th><th>{t('value')}</th></tr></thead>
                             <tbody>{entry.inspection.items.map((item, index) => {
                               const isSuno = /suno|made with/i.test(item.value)
+                              const isWoas = item.id === 'WOAS' || item.id === 'WAS'
                               const long = item.value.length > 170
-                              return <tr key={`${item.id}-${index}`} className={isSuno ? 'suno-row' : ''}>
+                              return <tr key={`${item.id}-${index}`} className={isSuno || isWoas ? 'suno-row' : ''}>
                                 <td><span className="container-chip">{item.container}</span></td>
                                 <td><code>{item.id}</code></td>
                                 <td>{metadataLabel(language, item.label)}</td>
-                                <td>{long ? <details className="long-value"><summary>{metadataValue(language, item.value.slice(0, 130))}...<ChevronDown size={13} /></summary><p>{metadataValue(language, item.value)}</p></details> : <span className="metadata-value">{metadataValue(language, item.value)}</span>}{isSuno && <span className="inline-ai">{t('aiSuno')}</span>}</td>
+                                <td>
+                                  {long ? <details className="long-value"><summary>{metadataValue(language, item.value.slice(0, 130))}...<ChevronDown size={13} /></summary><p>{metadataValue(language, item.value)}</p></details> : <span className="metadata-value">{metadataValue(language, item.value)}</span>}
+                                  {isSuno && <span className="inline-ai">{t('aiSuno')}</span>}
+                                  {(isWoas || isSuno) && (
+                                    <span className="inline-clean-hint" title={language === 'nl' ? 'Wordt in de bounce vervangen door jouw ingestelde profielwaarde' : 'Replaced in bounce by your configured profile'}>
+                                      <Check size={10} /> {t('willBeCleaned')}
+                                    </span>
+                                  )}
+                                </td>
                               </tr>
                             })}</tbody>
                           </table>

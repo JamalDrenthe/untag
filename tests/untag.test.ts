@@ -155,6 +155,29 @@ describe('synthetic metadata edge cases', () => {
     expect(result.items.find(({ id }) => id === 'TIT2')?.value).toBe('Aÿà')
   })
 
+  it('inspects and cleans/replaces WOAS (official audio source webpage)', () => {
+    const sunoSourceUrl = 'https://suno.com/song/c810d794-0e31-419b-a3d8-a68132e49755'
+    const woasFrame = frame('WOAS', ascii(sunoSourceUrl))
+    const sourceTag = id3Tag(3, 0, concat(woasFrame, frame('TIT2', new Uint8Array([0, ...ascii('Track Title')]))))
+    const inspected = inspect(sourceTag, 'suno.mp3')
+    const woasItem = inspected.items.find(({ id }) => id === 'WOAS')
+    expect(woasItem?.value).toBe(sunoSourceUrl)
+    expect(woasItem?.label).toBe('Official audio source webpage')
+
+    // Clean with custom audio_source_url
+    const customTags: TagSet = {
+      ...sampleTags,
+      audio_source_url: 'https://www.jamaldrenthe.com/tracks/custom',
+    }
+    const audioPayload = new Uint8Array([0xff, 0xfb, 0x90, 0x64, 1, 2, 3, 4])
+    const mp3Source = concat(sourceTag, audioPayload)
+    const cleaned = clean(mp3Source, 'mp3', customTags)
+    const reInspected = inspect(cleaned, 'clean.mp3')
+    const cleanedWoas = reInspected.items.find(({ id }) => id === 'WOAS')
+    expect(cleanedWoas?.value).toBe('https://www.jamaldrenthe.com/tracks/custom')
+    expect(cleanedWoas?.value).not.toContain('suno')
+  })
+
   it.each([0, 1, 2, 3])('decodes ID3v2.4 COMM text encoding %i', (encoding) => {
     const text = 'Made with Suno é'
     const encoded = encoding === 0
@@ -250,7 +273,7 @@ describe('Suno source library integration', () => {
       mood: 'TMOO', 'title-sort': 'TSOT', 'artist-sort': 'TSOP', 'album-sort': 'TSOA',
       'composer-sort': 'TSOC', language: 'TLAN', media_type: 'TMED', isrc: 'TSRC',
       publisher: 'TPUB', copyright: 'TCOP', producer_rights: 'TPRO', encoded_by: 'TENC',
-      comment: 'COMM', lyrics: 'USLT', website: 'WOAR',
+      comment: 'COMM', lyrics: 'USLT', website: 'WOAR', audio_source_url: 'WOAS',
     }
     const id3Container = format === 'wav' ? 'RIFF id3 chunk' : 'ID3v2.x'
     const expectedIds = Object.entries(frameIds).filter(([key]) => Boolean(tags[key as keyof TagSet])).map(([, id]) => id).sort()
