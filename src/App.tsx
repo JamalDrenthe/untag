@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react'
 import {
   ArrowDownToLine,
+  ArrowLeft,
   AudioLines,
   Check,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   X,
   Zap,
 } from 'lucide-react'
+import { LandingPage } from './LandingPage'
 import { zipSync } from 'fflate'
 import {
   DEFAULT_PROFILE,
@@ -178,6 +180,15 @@ function userFacingError(error: unknown, language: Language): string {
 }
 
 function App() {
+  const [view, setView] = useState<'landing' | 'app'>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase()
+      if (hash === '#app' || hash === '#/app' || window.location.search.includes('app')) {
+        return 'app'
+      }
+    }
+    return 'landing'
+  })
   const [language, setLanguage] = useState<Language>(() => (localStorage.getItem('untag-language') as Language) || 'nl')
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem('untag-theme') as Theme) || 'dark')
   const [profile, setProfile] = useState<Profile>(readStoredProfile)
@@ -191,6 +202,19 @@ function App() {
   const [toast, setToast] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const t = (key: Parameters<typeof translate>[1]) => translate(language, key)
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase()
+      if (hash === '#app' || hash === '#/app') {
+        setView('app')
+      } else if (!hash || hash === '#') {
+        setView('landing')
+      }
+    }
+    window.addEventListener('hashchange', handleHash)
+    return () => window.removeEventListener('hashchange', handleHash)
+  }, [])
 
   const groups = useMemo(() => [...new Set(TAG_FIELDS.map(({ group }) => group))], [])
 
@@ -443,16 +467,62 @@ function App() {
     addFiles(event.dataTransfer.files)
   }
 
+  const openApp = useCallback(() => {
+    setView('app')
+    window.location.hash = 'app'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const openLanding = useCallback(() => {
+    setView('landing')
+    window.location.hash = ''
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  const handleLandingDrop = useCallback((files: FileList) => {
+    addFiles(files)
+    openApp()
+  }, [addFiles, openApp])
+
   const logo = theme === 'dark' ? '/jdlogo-dark-transparent.png' : '/jdlogo-mark-light.png'
   const readyCount = entries.filter(({ cleaned }) => cleaned).length
+
+  if (view === 'landing') {
+    return (
+      <div className="app-shell">
+        <LandingPage
+          language={language}
+          theme={theme}
+          onSwitchLanguage={(nextLang) => setLanguage(nextLang)}
+          onSwitchTheme={(nextTheme) => setTheme(nextTheme)}
+          onOpenApp={openApp}
+          onDropFiles={handleLandingDrop}
+        />
+        {showProfile && <ProfileModal initial={profile} language={language} onClose={() => setShowProfile(false)} onSave={(next) => void saveProfile(next)} />}
+        {showAuth && <AuthModal language={language} onClose={() => setShowAuth(false)} onLogin={() => setShowAuth(false)} />}
+        {toast && <div className="toast"><Check size={15} />{toast}</div>}
+      </div>
+    )
+  }
 
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="untag home">
-          <img src={logo} className="brand-mark" alt="JD" />
-          <span className="brand-word">untag<span className="brand-period">.</span></span>
-        </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <button
+            className="soft-button"
+            onClick={openLanding}
+            title={t('backToWebsite')}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', height: '36px', padding: '0 12px', fontSize: '11px', fontWeight: 700 }}
+          >
+            <ArrowLeft size={15} />
+            <span>{language === 'nl' ? 'Website' : 'Website'}</span>
+          </button>
+          <a className="brand" href="/" onClick={(e) => { e.preventDefault(); openLanding(); }} aria-label="untag home">
+            <img src={logo} className="brand-mark" alt="JD" />
+            <span className="brand-word">untag<span className="brand-period">.</span> <span style={{ fontSize: '10px', color: 'var(--mint)', fontWeight: 800, marginLeft: '6px', padding: '2px 7px', background: 'var(--mint-soft)', borderRadius: '5px', border: '1px solid var(--mint-border)', letterSpacing: '0.06em' }}>STUDIO</span></span>
+          </a>
+        </div>
         <div className="header-actions">
           <span className="secure-label"><span className="secure-dot" />{language === 'nl' ? 'Alleen jij, altijd' : 'Only you, always'}</span>
           <button className="icon-button" onClick={() => setLanguage(language === 'nl' ? 'en' : 'nl')} aria-label={t('language')} title={t('language')}>

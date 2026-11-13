@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -238,7 +239,7 @@ describe('synthetic metadata edge cases', () => {
   })
 })
 
-describe('Suno source library integration', () => {
+describe.skipIf(!existsSync(sourceDir))('Suno source library integration', () => {
   it.each(sunoFiles)('%s: inspects and cleans without changing audio', async (filename) => {
     const source = new Uint8Array(await readFile(join(sourceDir, filename)))
     const format: AudioFormat = filename.toLowerCase().endsWith('.wav') ? 'wav' : 'mp3'
