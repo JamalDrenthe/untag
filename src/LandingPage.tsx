@@ -13,7 +13,6 @@ import {
   Moon,
   Radio,
   ShieldCheck,
-  Sparkles,
   Sun,
   UploadCloud,
   Zap,
@@ -114,7 +113,6 @@ export function LandingPage({
       <section id="hero" className="landing-hero">
         <div className="landing-badge">
           <span className="landing-badge-dot" />
-          <Sparkles size={13} className="landing-badge-icon" />
           <span>
             {isNl
               ? 'Professionele Audio Metadata Sanitizer & WASM Engine'
@@ -787,7 +785,7 @@ export function LandingPage({
       <section className="landing-cta-banner">
         <div className="cta-banner-content">
           <div className="banner-badge">
-            <Sparkles size={14} />
+            <ShieldCheck size={14} />
             <span>{isNl ? 'Direct klaar voor gebruik' : 'Ready to use now'}</span>
           </div>
           <h2>

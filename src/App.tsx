@@ -12,7 +12,6 @@ import {
   Music2,
   Plus,
   Settings2,
-  Sparkles,
   Sun,
   Upload,
   X,
@@ -545,7 +544,7 @@ function App() {
       <main>
         <section className="hero">
           <div className="hero-copy">
-            <div className="eyebrow"><span className="eyebrow-mark"><Sparkles size={14} /></span>{t('kicker')}</div>
+            <div className="eyebrow"><span className="eyebrow-mark"><AudioLines size={14} /></span>{t('kicker')}</div>
             <h1>{t('headline')}</h1>
             <p>{t('intro')}</p>
             <div className="hero-proof">
@@ -582,7 +581,7 @@ function App() {
             <div className="list-heading">
               <div><div className="section-eyebrow">{language === 'nl' ? 'WERKRUIMTE' : 'WORKSPACE'}</div><h2>{language === 'nl' ? 'Jouw bestanden' : 'Your files'} <span className="count-pill">{entries.length}</span></h2></div>
               <div className="batch-actions">
-                <button className="soft-button" onClick={() => void analyzeAll()} title={t('analyze')}><Sparkles size={15} />{t('analyze')}</button>
+                <button className="soft-button" onClick={() => void analyzeAll()} title={t('analyze')}><AudioLines size={15} />{t('analyze')}</button>
                 {entries.length > 1 && <button className="soft-button" onClick={() => void cleanAll()}><Zap size={15} />{t('clean')}</button>}
                 {entries.length > 1 && <button className="primary-button zip-button" onClick={() => void downloadZip()} disabled={zipBusy}>{zipBusy ? <span className="spinner" /> : <ArrowDownToLine size={16} />}{t('downloadZip')}</button>}
               </div>
@@ -612,14 +611,14 @@ function App() {
                 {entry.analyzing ? (
                   <div className="analysis-strip">
                     <div className="analysis-left">
-                      <span className="analysis-brand"><Sparkles size={13} className="spinner" /> Essentia.js</span>
+                      <span className="analysis-brand"><AudioLines size={13} className="spinner" /> Essentia.js</span>
                       <span className="analysis-confidence">{t('analyzing')}</span>
                     </div>
                   </div>
                 ) : entry.analysis ? (
                   <div className="analysis-strip">
                     <div className="analysis-left">
-                      <span className="analysis-brand"><Sparkles size={13} /> Essentia.js</span>
+                      <span className="analysis-brand"><AudioLines size={13} /> Essentia.js</span>
                       <span className="analysis-pill"><b>{entry.analysis.bpm}</b> BPM</span>
                       <span className="analysis-pill">{entry.analysis.displayKey}</span>
                       {entry.analysis.danceability !== undefined && (
@@ -657,8 +656,8 @@ function App() {
                   <>
                     <section className="metadata-section found-section">
                       <div className="section-title-line">
-                        <h4><span className="section-icon"><Sparkles size={15} /></span>{t('found')} <span className="subtle-count">{entry.inspection.items.length}</span></h4>
-                        {entry.inspection.suno?.id && <span className="ai-badge"><Sparkles size={12} />{t('aiSuno')}</span>}
+                        <h4><span className="section-icon"><AudioLines size={15} /></span>{t('found')} <span className="subtle-count">{entry.inspection.items.length}</span></h4>
+                        {entry.inspection.suno?.id && <span className="ai-badge"><FileAudio2 size={12} />{t('aiSuno')}</span>}
                       </div>
                       {entry.inspection.items.length === 0 ? <p className="no-metadata">{t('noMetadata')}</p> : (
                         <div className="table-wrap">
@@ -693,7 +692,7 @@ function App() {
                         <h4><span className="section-icon"><Settings2 size={15} /></span>{t('newTags')}</h4>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button className="text-button" onClick={() => void runAnalysis(entry, false)} disabled={entry.analyzing}>
-                            <Sparkles size={14} />{t('analyze')}
+                            <AudioLines size={14} />{t('analyze')}
                           </button>
                           {entries.length > 1 && <button className="text-button" onClick={() => applyShared(entry)}><Zap size={14} />{t('applyAll')}</button>}
                         </div>
