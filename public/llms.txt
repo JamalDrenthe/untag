@@ -1,0 +1,19 @@
+# untag — Professional Audio Metadata Sanitizer & WASM Engine
+
+> untag is a high-precision, in-browser audio engineering web application and studio tool built by Jamal Drenthe. It inspects, strips, replaces, and repairs audio metadata (ID3v2 tags and RIFF/WAV chunks) and performs client-side musical analysis (Key and BPM detection via Essentia.js WebAssembly) with zero re-encoding and complete client-side privacy.
+
+## Website & Webapp
+- Canonical URL: https://untag.jamaldrenthe.com/
+- Studio Webapp: https://untag.jamaldrenthe.com/#app
+- Author / Developer: Jamal Drenthe (https://www.jamaldrenthe.com)
+
+## Core Capabilities
+- **Zero Re-encoding**: 100% bit-perfect audio output. The underlying PCM samples and MP3 frames are never decompressed or re-encoded, preserving master audio fidelity and CRC/MD5 hashes.
+- **Client-Side Privacy**: All processing runs in the user's browser using HTML5 File API and Web Workers. No audio data is uploaded to remote servers.
+- **Essentia.js WASM Engine**: Client-side musical analysis executing Essentia's C++ DSP algorithms compiled to WebAssembly. Analyzes musical key, scale mode (Major/Minor), Camelot wheel notation, and tempo (BPM) from an intelligent window of decoded audio frames in a dedicated web worker.
+- **AI Watermark & WOAS Sanitization**: Detects and scrubs AI generator signatures, proprietary tracking frames (e.g. Suno UUIDs, prompt metadata), and official audio source URLs (`WOAS`/`WAS`) while giving producers full control over replacement values in the final bounce.
+- **Full Format Support**:
+  - MP3: ID3v2.3, ID3v2.4, ID3v1, APEv2.
+  - WAV: RIFF chunk surgery, `LIST-INFO`, `id3 ` sub-chunks, `bext` (Broadcast Wave Format), and `iXML`.
+- **Studio Profiles & Cloud Sync**: Configurable artist, composer, copyright, publisher, and licensing defaults, stored locally and optionally synchronizable via private cloud profiles.
+- **Batch Processing**: Simultaneous multi-file inspection, batch tag synchronization, and instant ZIP archiving powered by fast client-side deflate compression (`fflate`).

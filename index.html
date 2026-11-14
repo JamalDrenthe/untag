@@ -2,30 +2,92 @@
 <html lang="nl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#09090B" media="(prefers-color-scheme: dark)" />
-    <title>untag | Audio metadata opschonen</title>
-    <meta name="description" content="Verwijder verborgen tags uit MP3- en WAV-bestanden. Bekijk alle metadata, voeg je eigen tags toe en download schone audio zonder opnieuw coderen." />
+    <title>untag | Audio metadata opschonen &amp; Essentia.js Studio</title>
+    <meta name="description" content="Verwijder verborgen audiotags uit MP3- en WAV-bestanden. Detecteer toonsoort en BPM met Essentia.js WASM, pas ID3/RIFF metadata aan en exporteer zonder opnieuw coderen." />
     <link rel="canonical" href="https://untag.jamaldrenthe.com/" />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Open Graph (WhatsApp, LinkedIn, Facebook, Slack) -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="untag" />
+    <meta property="og:locale" content="nl_NL" />
+    <meta property="og:locale:alternate" content="en_US" />
     <meta property="og:url" content="https://untag.jamaldrenthe.com/" />
-    <meta property="og:title" content="untag | Audio metadata opschonen" />
-    <meta property="og:description" content="Bekijk verborgen audiotags, voeg je eigen metadata toe en download schone MP3- en WAV-bestanden." />
-    <meta property="og:image" content="https://untag.jamaldrenthe.com/og-image.png?v=1" />
+    <meta property="og:title" content="untag | Audio metadata opschonen &amp; Essentia.js Studio" />
+    <meta property="og:description" content="Verwijder verborgen audiotags uit MP3- en WAV-bestanden. Detecteer toonsoort en BPM met Essentia.js WASM, pas metadata aan en exporteer zonder hercodering." />
+    <meta property="og:image" content="https://untag.jamaldrenthe.com/og-image.png?v=2" />
+    <meta property="og:image:secure_url" content="https://untag.jamaldrenthe.com/og-image.png?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:alt" content="untag van Jamal Drenthe, opschonen van audio metadata" />
+    <meta property="og:image:alt" content="untag studio van Jamal Drenthe — Audio metadata opschonen en Essentia.js analyse" />
+
+    <!-- X (Twitter) Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="untag | Audio metadata opschonen" />
-    <meta name="twitter:description" content="Bekijk verborgen audiotags, voeg je eigen metadata toe en download schone MP3- en WAV-bestanden." />
-    <meta name="twitter:image" content="https://untag.jamaldrenthe.com/og-image.png?v=1" />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="twitter:title" content="untag | Audio metadata opschonen &amp; Essentia.js Studio" />
+    <meta name="twitter:description" content="Verwijder verborgen audiotags uit MP3- en WAV-bestanden. Detecteer toonsoort en BPM met Essentia.js WASM, pas metadata aan en exporteer zonder hercodering." />
+    <meta name="twitter:image" content="https://untag.jamaldrenthe.com/og-image.png?v=2" />
+    <meta name="twitter:image:alt" content="untag studio van Jamal Drenthe" />
+
+    <!-- Favicons & Touch Icons (LogoAnywhere standard) -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Schema.org Structured Data (AI Visibility & Search Engines) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://untag.jamaldrenthe.com/#webapp",
+          "name": "untag",
+          "alternateName": "untag Audio Metadata Sanitizer",
+          "url": "https://untag.jamaldrenthe.com/",
+          "description": "High-precision in-browser audio metadata sanitizer and Essentia.js WASM key & BPM analyzer. Zero re-encoding, 100% private, bit-perfect audio processing.",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "All (Modern Web Browser)",
+          "browserRequirements": "Requires JavaScript and WebAssembly",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "EUR"
+          },
+          "author": {
+            "@type": "Person",
+            "name": "Jamal Drenthe",
+            "url": "https://www.jamaldrenthe.com"
+          },
+          "featureList": [
+            "Zero re-encoding (100% bit-perfect audio preservation)",
+            "Essentia.js WebAssembly client-side musical Key and BPM detection",
+            "WOAS and Suno AI watermark and proprietary tag sanitization",
+            "ID3v2.3, ID3v2.4 and RIFF/WAV chunk inspection and repair",
+            "100% client-side privacy without remote audio uploads",
+            "Batch multi-file editing and instant ZIP export"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://untag.jamaldrenthe.com/#website",
+          "url": "https://untag.jamaldrenthe.com/",
+          "name": "untag",
+          "publisher": {
+            "@type": "Person",
+            "name": "Jamal Drenthe",
+            "url": "https://www.jamaldrenthe.com"
+          },
+          "inLanguage": ["nl", "en"]
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

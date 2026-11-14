@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    :root { color: #fff; --icon-bg: #09090b; }
+    @media (prefers-color-scheme: light) { :root { color: #17202b; --icon-bg: #fff; } }
+  </style>
+  <rect width="32" height="32" rx="7" fill="var(--icon-bg)"/>
+  <path fill="currentColor" d="M5 7h10v4H9v9c0 3-2 5-5 5-2 0-3-.7-4-2l3-3c.4.7.8 1 1.4 1 .9 0 1.6-.8 1.6-2V7Zm12 0h6c6 0 9 3.4 9 9s-3 9-9 9h-6V7Zm4 4v10h2c3.2 0 5-1.5 5-5s-1.8-5-5-5h-2Z" transform="translate(2 0) scale(.88 1)"/>
+</svg>

@@ -1,0 +1,26 @@
+# https://untag.jamaldrenthe.com/robots.txt
+# AI Visibility & Search Engine Crawler Policy for untag
+
+User-agent: *
+Allow: /
+
+# Dedicated AI Search Discovery Bots
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+Sitemap: https://untag.jamaldrenthe.com/sitemap.xml
